@@ -1,0 +1,281 @@
+<div class="p-6 space-y-6">
+
+  <!-- Page header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <p class="text-sm text-gray-500 mt-0.5">{{ today | date:'EEEE, d \' de\' MMMM y':'':'pt-BR' }}</p>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+    <!-- Empresas -->
+    <a routerLink="/app/empresas" class="bg-white rounded-xl border border-gray-200 p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer">
+      <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-500">Empresas Ativas</p>
+        <p class="text-2xl font-bold text-gray-900 mt-0.5">—</p>
+        <p class="text-xs text-gray-400 mt-1">módulo em breve</p>
+      </div>
+    </a>
+
+    <!-- Estoque -->
+    <a routerLink="/app/estoque" class="bg-white rounded-xl border border-gray-200 p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer">
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-500">Alertas de Estoque</p>
+        @if (alertas().length > 0) {
+          <p class="text-2xl font-bold text-red-600 mt-0.5">{{ alertas().length }}</p>
+          <p class="text-xs text-red-500 mt-1">{{ alertas().length }} produto(s) abaixo do mínimo</p>
+        } @else {
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">0</p>
+          <p class="text-xs text-emerald-600 mt-1">Estoque OK</p>
+        }
+      </div>
+    </a>
+
+    <!-- Vendas Hoje -->
+    <a routerLink="/app/vendas/pedidos" class="bg-white rounded-xl border border-gray-200 p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer">
+      <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-500">Vendas Hoje</p>
+        <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ kpis() ? fmt(kpis()!.receitaHoje) : 'R$ —' }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ kpis() ? kpis()!.pedidosHoje + ' pedidos' : (kpiErro() ? 'erro ao carregar' : 'carregando...') }}</p>
+      </div>
+    </a>
+
+    <!-- Vendas do Mês -->
+    <a routerLink="/app/vendas/relatorios" class="bg-white rounded-xl border border-gray-200 p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer">
+      <div class="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-500">Vendas do Mês</p>
+        <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ kpis() ? fmt(kpis()!.receitaMes) : 'R$ —' }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ kpis() ? kpis()!.pedidosMes + ' pedidos' : (kpiErro() ? 'erro ao carregar' : 'carregando...') }}</p>
+      </div>
+    </a>
+
+    <!-- Fiscal -->
+    <a routerLink="/app/fiscal/nfe" class="bg-white rounded-xl border border-gray-200 p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer">
+      <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-500">Docs. Fiscais</p>
+        @if (nfePendentes()) {
+          <p class="text-2xl font-bold mt-0.5" [class.text-amber-600]="totalNfePendentes > 0" [class.text-gray-900]="totalNfePendentes === 0">
+            {{ totalNfePendentes }}
+          </p>
+          <p class="text-xs mt-1" [class.text-amber-500]="totalNfePendentes > 0" [class.text-gray-400]="totalNfePendentes === 0">
+            {{ totalNfePendentes > 0 ? 'NF-e aguardando processamento' : 'Nenhuma NF-e pendente' }}
+          </p>
+        } @else {
+          <p class="text-2xl font-bold text-gray-900 mt-0.5">—</p>
+          <p class="text-xs text-gray-400 mt-1">carregando...</p>
+        }
+      </div>
+    </a>
+
+    <!-- Ticket Médio -->
+    <a routerLink="/app/vendas/relatorios" class="bg-white rounded-xl border border-gray-200 p-5 flex items-start gap-4 hover:shadow-md transition-shadow cursor-pointer">
+      <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+        <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-500">Ticket Médio (Mês)</p>
+        <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ kpis() ? fmt(kpis()!.ticketMedio) : 'R$ —' }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ kpis() ? kpis()!.pedidosMes + ' pedidos no mês' : (kpiErro() ? 'erro ao carregar' : 'carregando...') }}</p>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Analytics Row: Top Products / Top Clients / Sales by Vendor -->
+  @if (kpis() && (kpis()!.top5Produtos.length > 0 || kpis()!.top5Clientes.length > 0 || kpis()!.vendasPorVendedor.length > 0)) {
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- Top 5 Produtos -->
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">Top 5 Produtos (Mês)</h3>
+      <ul class="space-y-2">
+        @for (p of kpis()!.top5Produtos; track p.produtoId) {
+          <li class="flex items-center justify-between text-sm">
+            <span class="text-gray-700 truncate max-w-[60%]" [title]="p.nome">{{ p.nome }}</span>
+            <span class="text-gray-900 font-medium shrink-0">{{ fmt(p.receita) }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Top 5 Clientes -->
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">Top 5 Clientes (Mês)</h3>
+      <ul class="space-y-2">
+        @for (c of kpis()!.top5Clientes; track c.clienteId; let i = $index) {
+          <li class="flex items-center justify-between text-sm">
+            <span class="text-gray-700">Cliente #{{ i + 1 }}</span>
+            <div class="text-right">
+              <span class="text-gray-900 font-medium block">{{ fmt(c.receita) }}</span>
+              <span class="text-xs text-gray-400">{{ c.pedidos }} pedido(s)</span>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Vendas por Vendedor -->
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">Vendas por Vendedor (Mês)</h3>
+      <ul class="space-y-2">
+        @for (v of kpis()!.vendasPorVendedor; track v.vendedorId; let i = $index) {
+          <li class="flex items-center justify-between text-sm">
+            <span class="text-gray-700">Vendedor #{{ i + 1 }}</span>
+            <div class="text-right">
+              <span class="text-gray-900 font-medium block">{{ fmt(v.receita) }}</span>
+              <span class="text-xs text-gray-400">{{ v.pedidos }} pedido(s)</span>
+            </div>
+          </li>
+        }
+      </ul>
+    </div>
+
+  </div>
+  }
+
+  <!-- Alertas de Estoque Baixo -->
+  @if (alertas().length > 0) {
+  <div class="bg-white rounded-xl border border-red-200 p-5">
+    <div class="flex items-center gap-2 mb-3">
+      <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <h3 class="text-sm font-semibold text-red-700">Alertas de Estoque Baixo</h3>
+    </div>
+    <div class="overflow-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left text-xs text-gray-500 border-b border-gray-100">
+            <th class="pb-2 pr-4">Produto</th>
+            <th class="pb-2 pr-4">Cód.</th>
+            <th class="pb-2 pr-4 text-right">Qtde Atual</th>
+            <th class="pb-2 text-right">Mínimo</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of alertas(); track a.produtoId + a.lojaId) {
+            <tr class="border-b border-gray-50">
+              <td class="py-2 pr-4 text-gray-800 font-medium">{{ a.nome }}</td>
+              <td class="py-2 pr-4 text-gray-500">{{ a.codigo }}</td>
+              <td class="py-2 pr-4 text-right font-bold text-red-600">{{ fmtNum(a.quantidadeAtual) }}</td>
+              <td class="py-2 text-right text-gray-500">{{ fmtNum(a.estoqueMinimo) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+
+  <!-- Modules Grid -->
+  <div>
+    <h2 class="text-base font-semibold text-gray-800 mb-3">Módulos do Sistema</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <a routerLink="/app/empresas"
+         class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group block">
+        <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
+          <svg class="w-5 h-5 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900 text-sm">Empresas</h3>
+        <p class="text-xs text-gray-500 mt-1">Gerencie clientes, fornecedores e filiais.</p>
+        <span class="inline-block mt-3 text-xs text-blue-600 font-medium">Acessar &rarr;</span>
+      </a>
+
+      <a routerLink="/app/estoque"
+         class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group block">
+        <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center mb-4 group-hover:bg-emerald-200 transition-colors">
+          <svg class="w-5 h-5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900 text-sm">Estoque</h3>
+        <p class="text-xs text-gray-500 mt-1">Controle produtos, fórmulas e alertas de reposição.</p>
+        <span class="inline-block mt-3 text-xs text-emerald-600 font-medium">Acessar &rarr;</span>
+      </a>
+
+      <a routerLink="/app/vendas"
+         class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group block">
+        <div class="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center mb-4 group-hover:bg-violet-200 transition-colors">
+          <svg class="w-5 h-5 text-violet-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900 text-sm">Vendas</h3>
+        <p class="text-xs text-gray-500 mt-1">Registre pedidos, misturas e gere etiquetas.</p>
+        <span class="inline-block mt-3 text-xs text-violet-600 font-medium">Acessar &rarr;</span>
+      </a>
+
+      <a routerLink="/app/fiscal"
+         class="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group block">
+        <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center mb-4 group-hover:bg-amber-200 transition-colors">
+          <svg class="w-5 h-5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900 text-sm">Fiscal</h3>
+        <p class="text-xs text-gray-500 mt-1">Emita NF-e, NFS-e e relatórios tributários.</p>
+        <span class="inline-block mt-3 text-xs text-amber-600 font-medium">Acessar &rarr;</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Quick info banner -->
+  <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-5 flex items-center gap-4">
+    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center shrink-0">
+      <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+    <div>
+      <p class="text-white font-semibold text-sm">Sistema em implantação</p>
+      <p class="text-blue-100 text-xs mt-0.5">Os módulos de Empresas, Estoque, Vendas e Fiscal estão sendo desenvolvidos. O sistema de autenticação já está disponível.</p>
+    </div>
+  </div>
+
+</div>

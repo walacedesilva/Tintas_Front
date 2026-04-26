@@ -1,0 +1,252 @@
+<div class="p-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Clientes</h1>
+      <p class="text-sm text-gray-500 mt-0.5">Cadastro e gestão de clientes</p>
+    </div>
+    <button (click)="openForm()"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Novo Cliente
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-4">
+    <input type="text" placeholder="Buscar por nome, CPF/CNPJ..."
+      (input)="onSearch($event)"
+      class="w-full max-w-md border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+  </div>
+
+  <!-- Error -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{{ error() }}</div>
+  }
+
+  <!-- Table -->
+  <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    @if (loading()) {
+      <div class="flex items-center justify-center py-16 text-gray-400">
+        <svg class="w-5 h-5 animate-spin mr-2" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+        </svg>
+        Carregando...
+      </div>
+    } @else if (clientes().length === 0) {
+      <div class="text-center py-16 text-gray-400 text-sm">Nenhum cliente encontrado.</div>
+    } @else {
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200">
+          <tr>
+            <th class="text-left px-4 py-3 font-medium text-gray-600">Nome</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600">CPF/CNPJ</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600">Tipo</th>
+            <th class="text-left px-4 py-3 font-medium text-gray-600">E-mail</th>
+            <th class="text-right px-4 py-3 font-medium text-gray-600">Limite</th>
+            <th class="text-center px-4 py-3 font-medium text-gray-600">Status</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          @for (c of clientes(); track c.id) {
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 font-medium text-gray-900">{{ c.nome }}</td>
+              <td class="px-4 py-3 text-gray-600 font-mono text-xs">{{ c.cpfCnpj }}</td>
+              <td class="px-4 py-3">
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                  [class]="c.tipo === 1 ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'">
+                  {{ tipoLabel(c.tipo) }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-gray-600">{{ c.email || '—' }}</td>
+              <td class="px-4 py-3 text-right text-gray-700">
+                {{ c.limiteCredito | currency:'BRL':'symbol':'1.2-2' }}
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                  [class]="c.ativo ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'">
+                  {{ c.ativo ? 'Ativo' : 'Inativo' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button (click)="openDetalhe(c)"
+                  class="text-blue-600 hover:text-blue-800 text-xs font-medium transition-colors">
+                  Detalhe
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+</div>
+
+<!-- Create Form Modal -->
+@if (showForm()) {
+  <div class="fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4" (click)="closeForm()">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Novo Cliente</h2>
+        <button (click)="closeForm()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (formError()) {
+        <div class="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">{{ formError() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="px-6 py-4 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Tipo *</label>
+            <select formControlName="tipo"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              @for (opt of tipoOpts; track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Limite de Crédito</label>
+            <input type="number" formControlName="limiteCredito" min="0" step="0.01"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Nome / Razão Social *</label>
+          <input type="text" formControlName="nome" placeholder="Nome completo ou razão social"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+            <p class="text-xs text-red-500 mt-1">Nome obrigatório.</p>
+          }
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">CPF / CNPJ *</label>
+            <input type="text" formControlName="cpfCnpj" placeholder="Somente números"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            @if (form.get('cpfCnpj')?.invalid && form.get('cpfCnpj')?.touched) {
+              <p class="text-xs text-red-500 mt-1">CPF/CNPJ obrigatório.</p>
+            }
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Inscrição Estadual</label>
+            <input type="text" formControlName="inscricaoEstadual"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">E-mail</label>
+            <input type="email" formControlName="email"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-700 mb-1">Telefone</label>
+            <input type="text" formControlName="telefone"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" (click)="closeForm()"
+            class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="saving()"
+            class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-60 transition-colors flex items-center gap-2">
+            @if (saving()) {
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              </svg>
+            }
+            Salvar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Detalhe Modal -->
+@if (showDetalhe(); as c) {
+  <div class="fixed inset-0 bg-black/40 z-40 flex items-center justify-center p-4" (click)="closeDetalhe()">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md" (click)="$event.stopPropagation()">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">{{ c.nome }}</h2>
+        <button (click)="closeDetalhe()" class="text-gray-400 hover:text-gray-600">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <dl class="px-6 py-4 space-y-3 text-sm">
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Tipo</dt>
+          <dd class="font-medium">{{ tipoLabel(c.tipo) }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-gray-500">CPF / CNPJ</dt>
+          <dd class="font-mono">{{ c.cpfCnpj }}</dd>
+        </div>
+        @if (c.inscricaoEstadual) {
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Insc. Estadual</dt>
+            <dd>{{ c.inscricaoEstadual }}</dd>
+          </div>
+        }
+        @if (c.email) {
+          <div class="flex justify-between">
+            <dt class="text-gray-500">E-mail</dt>
+            <dd>{{ c.email }}</dd>
+          </div>
+        }
+        @if (c.telefone) {
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Telefone</dt>
+            <dd>{{ c.telefone }}</dd>
+          </div>
+        }
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Limite de Crédito</dt>
+          <dd class="font-semibold text-blue-700">{{ c.limiteCredito | currency:'BRL':'symbol':'1.2-2' }}</dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-gray-500">Status</dt>
+          <dd>
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+              [class]="c.ativo ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'">
+              {{ c.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </dd>
+        </div>
+        @if (c.enderecoLogradouro) {
+          <div class="pt-2 border-t border-gray-100">
+            <dt class="text-gray-500 mb-1">Endereço</dt>
+            <dd class="text-gray-800">
+              {{ c.enderecoLogradouro }}{{ c.enderecoNumero ? ', ' + c.enderecoNumero : '' }}
+              @if (c.enderecoComplemento) { — {{ c.enderecoComplemento }} }
+              <br />
+              {{ c.enderecoBairro }} — {{ c.enderecoMunicipio }}/{{ c.enderecoUf }}
+              @if (c.enderecoCep) { · {{ c.enderecoCep }} }
+            </dd>
+          </div>
+        }
+      </dl>
+    </div>
+  </div>
+}

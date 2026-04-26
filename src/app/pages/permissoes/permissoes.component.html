@@ -1,0 +1,200 @@
+<div class="p-6 space-y-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Permissões e Acessos</h1>
+      <p class="text-sm text-gray-500 mt-1">Gerencie os vínculos de usuários às lojas e seus papéis.</p>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  @if (erro()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
+      <span class="text-red-700 text-sm">{{ erro() }}</span>
+      <button (click)="erro.set(null)" class="text-red-400 hover:text-red-600 ml-4">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="bg-white rounded-xl border border-gray-200 p-4">
+    <div class="flex flex-wrap gap-3 items-end">
+      <div class="flex-1 min-w-48">
+        <label class="block text-xs font-medium text-gray-600 mb-1">Buscar usuário</label>
+        <input
+          type="text"
+          [value]="searchText()"
+          (input)="searchText.set($any($event.target).value)"
+          placeholder="Login ou e-mail..."
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+        />
+      </div>
+      <div class="min-w-48">
+        <label class="block text-xs font-medium text-gray-600 mb-1">Filtrar por loja</label>
+        <select
+          [value]="filtroLojaId()"
+          (change)="filtroLojaId.set($any($event.target).value)"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
+        >
+          <option value="">Todas as lojas</option>
+          @for (loja of lojas(); track loja.id) {
+            <option [value]="loja.id">{{ loja.nome }}</option>
+          }
+        </select>
+      </div>
+      <button
+        (click)="aplicarFiltros()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+      >
+        Buscar
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (carregando()) {
+    <div class="flex justify-center py-12">
+      <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  }
+
+  <!-- Users table -->
+  @if (!carregando()) {
+    @if (usuarios().length === 0) {
+      <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
+        <p class="text-gray-400 text-sm">Nenhum usuário encontrado.</p>
+      </div>
+    } @else {
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Usuário</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Papel</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Lojas vinculadas</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">Adicionar loja</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (usuario of usuarios(); track usuario.id) {
+              <tr class="hover:bg-gray-50 transition-colors">
+
+                <!-- User info -->
+                <td class="px-4 py-3">
+                  <div class="font-medium text-gray-900">{{ usuario.login }}</div>
+                  <div class="text-xs text-gray-400">{{ usuario.email }}</div>
+                </td>
+
+                <!-- Role dropdown -->
+                <td class="px-4 py-3">
+                  <select
+                    [value]="usuario.role"
+                    (change)="atualizarPapel(usuario, $any($event.target).value)"
+                    [disabled]="salvandoId() === usuario.id"
+                    class="px-2 py-1 border border-gray-300 rounded-md text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white disabled:opacity-50"
+                  >
+                    @for (papel of papeis; track papel.value) {
+                      <option [value]="papel.value">{{ papel.label }}</option>
+                    }
+                  </select>
+                </td>
+
+                <!-- Status badge -->
+                <td class="px-4 py-3">
+                  @if (usuario.ativo) {
+                    <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">Ativo</span>
+                  } @else {
+                    <span class="px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full text-xs font-medium">Inativo</span>
+                  }
+                </td>
+
+                <!-- Active vinculos -->
+                <td class="px-4 py-3">
+                  <div class="flex flex-wrap gap-1">
+                    @for (vinculo of usuario.vinculos; track vinculo.id) {
+                      @if (vinculo.ativo) {
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md text-xs border border-blue-100">
+                          {{ nomeLoja(vinculo.lojaId) }}
+                          <button
+                            (click)="removerVinculo(vinculo.id, usuario.id)"
+                            [disabled]="salvandoId() === usuario.id"
+                            class="text-blue-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                            title="Remover vínculo"
+                          >
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                          </button>
+                        </span>
+                      }
+                    }
+                    @if (hasNoActiveVinculo(usuario)) {
+                      <span class="text-gray-400 text-xs italic">Sem lojas</span>
+                    }
+                  </div>
+                </td>
+
+                <!-- Add vinculo -->
+                <td class="px-4 py-3">
+                  <div class="flex gap-2 items-center">
+                    <select
+                      [(ngModel)]="lojaParaAdicionar[usuario.id]"
+                      class="px-2 py-1 border border-gray-300 rounded-md text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                    >
+                      <option value="">Selecionar loja...</option>
+                      @for (loja of lojas(); track loja.id) {
+                        @if (loja.ativa) {
+                          <option [value]="loja.id">{{ loja.nome }}</option>
+                        }
+                      }
+                    </select>
+                    <button
+                      (click)="adicionarVinculo(usuario)"
+                      [disabled]="!lojaParaAdicionar[usuario.id] || salvandoId() === usuario.id"
+                      class="px-2 py-1 bg-blue-600 text-white rounded-md text-xs font-medium hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Adicionar
+                    </button>
+                  </div>
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        @if (total() > pageSize()) {
+          <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+            <span class="text-xs text-gray-500">
+              {{ (page() - 1) * pageSize() + 1 }}–{{ page() * pageSize() > total() ? total() : page() * pageSize() }} de {{ total() }} usuários
+            </span>
+            <div class="flex gap-2">
+              <button
+                (click)="antPagina()"
+                [disabled]="page() <= 1"
+                class="px-3 py-1 border border-gray-300 rounded-md text-xs hover:bg-gray-50 disabled:opacity-40"
+              >
+                Anterior
+              </button>
+              <span class="px-3 py-1 text-xs text-gray-600">{{ page() }} / {{ totalPages() }}</span>
+              <button
+                (click)="proxPagina()"
+                [disabled]="page() >= totalPages()"
+                class="px-3 py-1 border border-gray-300 rounded-md text-xs hover:bg-gray-50 disabled:opacity-40"
+              >
+                Próxima
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+</div>
