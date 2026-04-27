@@ -7,6 +7,7 @@ import { CarrinhoService } from '../../../services/carrinho.service';
 import { ProdutoService, ProdutoResponse } from '../../../services/produto.service';
 import { ClienteService, ClienteResponse } from '../../../services/cliente.service';
 import { AuthService } from '../../../services/auth.service';
+import { LojaService } from '../../../services/loja.service';
 
 @Component({
   selector: 'app-pdv',
@@ -145,6 +146,7 @@ import { AuthService } from '../../../services/auth.service';
               <label class="block text-xs font-medium text-gray-600 mb-1">Método</label>
               <select
                 [(ngModel)]="pagMetodo"
+                (ngModelChange)="onMetodoChange()"
                 class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:outline-none"
               >
                 <option value="Dinheiro">Dinheiro</option>
@@ -165,14 +167,21 @@ import { AuthService } from '../../../services/auth.service';
               />
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">Parcelas</label>
-              <input
-                type="number"
-                [(ngModel)]="pagParcelas"
-                min="1"
-                max="12"
-                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:outline-none"
-              />
+              @if (aceitaParcelas) {
+                <label class="block text-xs font-medium text-gray-600 mb-1">Parcelas</label>
+                <input
+                  type="number"
+                  [(ngModel)]="pagParcelas"
+                  min="1"
+                  max="12"
+                  class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500 focus:outline-none"
+                />
+              } @else {
+                <label class="block text-xs font-medium text-gray-600 mb-1">Condição</label>
+                <div class="w-full px-3 py-2 text-sm border border-gray-100 rounded-lg bg-gray-50 text-gray-500 select-none">
+                  À vista
+                </div>
+              }
             </div>
           </div>
           <button
@@ -186,8 +195,12 @@ import { AuthService } from '../../../services/auth.service';
             <ul class="mt-3 divide-y divide-gray-100">
               @for (p of pagamentos(); track $index) {
                 <li class="py-2 flex items-center justify-between text-sm">
-                  <span class="text-gray-700">{{ p.metodo }}
-                    @if ((p.parcelas ?? 1) > 1) { ({{ p.parcelas }}x) }
+                  <span class="text-gray-700">{{ labelMetodo(p.metodo) }}
+                    @if (p.metodo === 'CartaoCredito') {
+                      <span class="text-xs text-gray-400 ml-1">{{ (p.parcelas ?? 1) }}x</span>
+                    } @else {
+                      <span class="text-xs text-gray-400 ml-1">à vista</span>
+                    }
                   </span>
                   <div class="flex items-center gap-3">
                     <span class="font-medium">{{ p.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
@@ -328,6 +341,7 @@ export class PdvComponent implements OnInit {
   private readonly produtoService = inject(ProdutoService);
   private readonly clienteService = inject(ClienteService);
   private readonly authService = inject(AuthService);
+  private readonly lojaService = inject(LojaService);
 
   // Form inputs
   buscaProduto = '';
@@ -395,7 +409,19 @@ export class PdvComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.lojaId = this.authService.getLojaId();
+    const role = this.authService.getRole();
+    // Fallback to JWT claim while API loads (avoids flash)
+    this.lojaId = this.authService.getLojaId() ?? this.authService.getLojaIds()[0] ?? null;
+    this.lojaService.listar().subscribe({
+      next: lojas => {
+        const ativas = lojas.filter(l => l.ativa);
+        if (ativas.length > 0 && !this.lojaId) {
+          this.lojaId = ativas[0].id;
+        } else if (ativas.length === 0 && role !== 'admin') {
+          this.lojaId = null;
+        }
+      },
+    });
   }
 
   buscarProdutos(q: string): void {
@@ -437,12 +463,31 @@ export class PdvComponent implements OnInit {
     this.carrinho.limparCliente();
   }
 
+  get aceitaParcelas(): boolean {
+    return this.pagMetodo === 'CartaoCredito';
+  }
+
+  onMetodoChange(): void {
+    this.pagParcelas = 1;
+  }
+
+  labelMetodo(metodo: string): string {
+    const labels: Record<string, string> = {
+      Dinheiro: 'Dinheiro',
+      CartaoDebito: 'Cartão Débito',
+      CartaoCredito: 'Cartão Crédito',
+      PIX: 'PIX',
+      ContaCliente: 'Conta Cliente',
+    };
+    return labels[metodo] ?? metodo;
+  }
+
   adicionarPagamento(): void {
     if (this.pagValor <= 0) return;
     this.pagamentos.update(p => [...p, {
       metodo: this.pagMetodo,
       valor: this.pagValor,
-      parcelas: this.pagParcelas,
+      parcelas: this.aceitaParcelas ? this.pagParcelas : 1,
     }]);
     this.pagValor = 0;
     this.pagParcelas = 1;

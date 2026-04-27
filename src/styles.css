@@ -1,3 +1,2 @@
-/* Global styles */
-@import "tailwindcss";
-@source "./app";
+/* Global styles — gerado por @tailwindcss/cli, não editar direto */
+@import "./tailwind.generated.css";

@@ -20,9 +20,9 @@
         </svg>
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm text-gray-500">Empresas Ativas</p>
-        <p class="text-2xl font-bold text-gray-900 mt-0.5">—</p>
-        <p class="text-xs text-gray-400 mt-1">módulo em breve</p>
+        <p class="text-sm text-gray-500">Lojas Ativas</p>
+        <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ kpis()?.lojasAtivas ?? '—' }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ kpis() ? 'loja(s) ativa(s)' : 'carregando...' }}</p>
       </div>
     </a>
 
@@ -140,7 +140,7 @@
       <ul class="space-y-2">
         @for (c of kpis()!.top5Clientes; track c.clienteId; let i = $index) {
           <li class="flex items-center justify-between text-sm">
-            <span class="text-gray-700">Cliente #{{ i + 1 }}</span>
+            <span class="text-gray-700 truncate max-w-[60%]" [title]="c.nomeCliente">{{ c.nomeCliente }}</span>
             <div class="text-right">
               <span class="text-gray-900 font-medium block">{{ fmt(c.receita) }}</span>
               <span class="text-xs text-gray-400">{{ c.pedidos }} pedido(s)</span>
@@ -156,7 +156,7 @@
       <ul class="space-y-2">
         @for (v of kpis()!.vendasPorVendedor; track v.vendedorId; let i = $index) {
           <li class="flex items-center justify-between text-sm">
-            <span class="text-gray-700">Vendedor #{{ i + 1 }}</span>
+            <span class="text-gray-700 truncate max-w-[60%]" [title]="v.nomeVendedor">{{ v.nomeVendedor }}</span>
             <div class="text-right">
               <span class="text-gray-900 font-medium block">{{ fmt(v.receita) }}</span>
               <span class="text-xs text-gray-400">{{ v.pedidos }} pedido(s)</span>

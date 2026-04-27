@@ -14,12 +14,14 @@ interface ProdutoDashboardDto {
 
 interface ClienteDashboardDto {
   clienteId: string;
+  nomeCliente: string;
   pedidos: number;
   receita: number;
 }
 
 interface VendedorDashboardDto {
   vendedorId: string;
+  nomeVendedor: string;
   pedidos: number;
   receita: number;
 }
@@ -30,6 +32,7 @@ interface DashboardKpiResponse {
   pedidosMes: number;
   receitaMes: number;
   ticketMedio: number;
+  lojasAtivas: number;
   top5Produtos: ProdutoDashboardDto[];
   top5Clientes: ClienteDashboardDto[];
   vendasPorVendedor: VendedorDashboardDto[];
