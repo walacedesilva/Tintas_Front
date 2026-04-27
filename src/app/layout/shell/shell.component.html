@@ -1,0 +1,182 @@
+<div class="flex h-screen bg-gray-100 overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-64 flex flex-col shrink-0" style="background: linear-gradient(180deg, #0f1f3d 0%, #0a1628 100%)">
+
+    <!-- Logo -->
+    <div class="px-5 py-5 border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-white font-bold text-sm leading-tight">Atalaia Tintas</p>
+          <p class="text-blue-300 text-xs">Sistema de Gestão</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+
+      <a routerLink="/app/dashboard" routerLinkActive="bg-white/15 text-white"
+         [routerLinkActiveOptions]="{exact:true}"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+        <!-- grid icon -->
+        <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+        </svg>
+        Dashboard
+      </a>
+
+      <a routerLink="/app/empresas" routerLinkActive="bg-white/15 text-white"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+        <!-- building icon -->
+        <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+        Empresas
+      </a>
+
+      @if (canAccessTela('estoque')) {
+        <div>
+          <a routerLink="/app/estoque" routerLinkActive="bg-white/15 text-white"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+            <!-- cube icon -->
+            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            Estoque
+          </a>
+          <div class="ml-8 mt-0.5 space-y-0.5">
+            <a routerLink="/app/estoque/produtos" routerLinkActive="text-white font-semibold"
+               class="block px-3 py-1.5 rounded-md text-blue-300 hover:text-white text-xs transition-colors">
+              Produtos
+            </a>
+            <a routerLink="/app/estoque/niveis" routerLinkActive="text-white font-semibold"
+               class="block px-3 py-1.5 rounded-md text-blue-300 hover:text-white text-xs transition-colors">
+              Níveis
+            </a>
+            <a routerLink="/app/estoque/ajuste" routerLinkActive="text-white font-semibold"
+               class="block px-3 py-1.5 rounded-md text-blue-300 hover:text-white text-xs transition-colors">
+              Ajuste
+            </a>
+            <a routerLink="/app/estoque/movimentacoes" routerLinkActive="text-white font-semibold"
+               class="block px-3 py-1.5 rounded-md text-blue-300 hover:text-white text-xs transition-colors">
+              Movimentações
+            </a>
+          </div>
+        </div>
+      }
+
+      <a routerLink="/app/vendas" routerLinkActive="bg-white/15 text-white"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+        <!-- shopping-cart icon -->
+        <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        Vendas
+      </a>
+
+      <a routerLink="/app/fiscal" routerLinkActive="bg-white/15 text-white"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+        <!-- document icon -->
+        <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Fiscal
+      </a>
+
+      @if (canAccessTela('clientes')) {
+        <a routerLink="/app/clientes" routerLinkActive="bg-white/15 text-white"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+          <!-- users-group icon -->
+          <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m9-10a4 4 0 100-8 4 4 0 000 8zm6 2v2m0 4v-4m0 0h-2m2 0h2" />
+          </svg>
+          Clientes
+        </a>
+      }
+
+      @if (canAccessTela('usuarios')) {
+        <a routerLink="/app/usuarios" routerLinkActive="bg-white/15 text-white"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+          <!-- users icon -->
+          <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Usuários
+        </a>
+
+        <a routerLink="/app/configuracoes/permissoes-tela" routerLinkActive="bg-white/15 text-white"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-200 hover:bg-white/10 hover:text-white transition-all text-sm font-medium">
+          <!-- shield icon -->
+          <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          Permissões
+        </a>
+      }
+
+    </nav>
+
+    <!-- User section -->
+    <div class="px-4 py-4 border-t border-white/10">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
+          <span class="text-white text-xs font-bold">{{ username.charAt(0).toUpperCase() }}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-white text-sm font-medium truncate">{{ username }}</p>
+          <p class="text-blue-300 text-xs truncate">{{ role }}</p>
+        </div>
+        <button (click)="logout()" title="Sair"
+          class="text-blue-300 hover:text-red-400 transition-colors shrink-0">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main area -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Top bar -->
+    <header class="bg-white border-b border-gray-200 px-6 h-14 flex items-center gap-4 shrink-0">
+      <div class="flex-1"></div>
+      <!-- Notification bell -->
+      <button class="text-gray-400 hover:text-gray-600 transition-colors relative">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+      </button>
+      <!-- Avatar -->
+      <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+        <span class="text-white text-xs font-bold">{{ username.charAt(0).toUpperCase() }}</span>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="flex-1 overflow-y-auto">
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+
+</div>

@@ -1,0 +1,184 @@
+<div class="p-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-xl font-bold text-gray-900">Lojas</h2>
+      <p class="text-sm text-gray-500 mt-0.5">Cadastre e gerencie as lojas da empresa</p>
+    </div>
+    <button (click)="abrirNova()"
+      class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Nova Loja
+    </button>
+  </div>
+
+  <!-- Error alert -->
+  @if (erro()) {
+    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+      {{ erro() }}
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-16 text-gray-400 text-sm">
+      Carregando&#8230;
+    </div>
+  }
+
+  <!-- Lojas table -->
+  @if (!loading() && lojas().length > 0) {
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100 bg-gray-50">
+            <th class="px-4 py-3 text-left font-medium text-gray-500">Nome</th>
+            <th class="px-4 py-3 text-left font-medium text-gray-500">CNPJ</th>
+            <th class="px-4 py-3 text-left font-medium text-gray-500">&#x45;ndere&#xe7;o</th>
+            <th class="px-4 py-3 text-left font-medium text-gray-500">Status</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50">
+          @for (loja of lojas(); track loja.id) {
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-4 py-3 font-medium text-gray-900">{{ loja.nome }}</td>
+              <td class="px-4 py-3 font-mono text-gray-600">{{ loja.cnpjLoja ? formatarCnpj(loja.cnpjLoja) : '—' }}</td>
+              <td class="px-4 py-3 text-gray-600 max-w-xs truncate">{{ loja.endereco || '—' }}</td>
+              <td class="px-4 py-3">
+                @if (loja.ativa) {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">Ativa</span>
+                } @else {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Inativa</span>
+                }
+              </td>
+              <td class="px-4 py-3 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <button (click)="abrirEdicao(loja)"
+                    class="text-xs text-blue-600 hover:text-blue-800 transition-colors px-2 py-1 rounded hover:bg-blue-50">
+                    Editar
+                  </button>
+                  @if (loja.ativa) {
+                    <button (click)="confirmarDesativar(loja.id)"
+                      class="text-xs text-red-500 hover:text-red-700 transition-colors px-2 py-1 rounded hover:bg-red-50">
+                      Desativar
+                    </button>
+                  } @else {
+                    <button (click)="ativar(loja)"
+                      class="text-xs text-gray-500 hover:text-gray-800 transition-colors px-2 py-1 rounded hover:bg-gray-100">
+                      Ativar
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @if (!loading() && lojas().length === 0) {
+    <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+      <svg class="w-12 h-12 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+      <p class="text-sm">Nenhuma loja cadastrada</p>
+      <button (click)="abrirNova()" class="mt-3 text-sm text-blue-600 hover:text-blue-800">Cadastrar primeira loja</button>
+    </div>
+  }
+
+</div>
+
+<!-- Confirmation dialog: deactivate -->
+@if (confirmando()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <h3 class="text-base font-semibold text-gray-900 mb-2">Desativar loja</h3>
+      <p class="text-sm text-gray-600 mb-6">Deseja realmente desativar esta loja? A loja deixar&#xe1; de aparecer nas op&#xe7;&#xf5;es de v&#xed;nculo.</p>
+      <div class="flex gap-3">
+        <button (click)="cancelarDesativar()"
+          class="flex-1 py-2 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          Cancelar
+        </button>
+        <button (click)="desativar(confirmando()!)"
+          class="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Create/Edit loja modal -->
+@if (showForm()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-base font-semibold text-gray-900">{{ editando() ? 'Editar Loja' : 'Nova Loja' }}</h2>
+        <button (click)="fecharForm()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="salvar()" class="px-6 py-5 space-y-4">
+
+        @if (formError()) {
+          <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            {{ formError() }}
+          </div>
+        }
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nome da loja</label>
+          <input formControlName="nome" type="text"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ex: Loja Centro" />
+          @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+            <p class="text-xs text-red-600 mt-1">Nome obrigat&#xf3;rio</p>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+          <input formControlName="cnpj" type="text"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="00.000.000/0000-00" />
+          @if (form.get('cnpj')?.hasError('cnpjInvalido') && form.get('cnpj')?.touched) {
+            <p class="text-xs text-red-600 mt-1">CNPJ inv&#xe1;lido</p>
+          }
+          @if (form.get('cnpj')?.hasError('required') && form.get('cnpj')?.touched) {
+            <p class="text-xs text-red-600 mt-1">CNPJ obrigat&#xf3;rio</p>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Endere&#xe7;o <span class="text-gray-400 font-normal">(opcional)</span></label>
+          <input formControlName="endereco" type="text"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ex: Rua das Flores, 100 - Centro" />
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" (click)="fecharForm()"
+            class="flex-1 py-2 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="saving() || form.invalid"
+            class="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
+            {{ saving() ? 'Salvando&#8230;' : (editando() ? 'Atualizar' : 'Cadastrar') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}

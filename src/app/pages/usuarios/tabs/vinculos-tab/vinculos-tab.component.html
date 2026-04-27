@@ -1,0 +1,183 @@
+<div class="p-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-xl font-bold text-gray-900">V&#xed;nculos de Usu&#xe1;rios</h2>
+      <p class="text-sm text-gray-500 mt-0.5">Gerencie quais usu&#xe1;rios t&#xea;m acesso a cada loja</p>
+    </div>
+  </div>
+
+  <!-- Error alert -->
+  @if (erro()) {
+    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+      {{ erro() }}
+    </div>
+  }
+
+  <!-- Loja selector -->
+  @if (loadingLojas()) {
+    <div class="flex items-center justify-center py-8 text-gray-400 text-sm">Carregando lojas&#8230;</div>
+  } @else if (lojas().length === 0) {
+    <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+      Nenhuma loja ativa encontrada. Cadastre uma loja primeiro na aba <strong>Lojas</strong>.
+    </div>
+  } @else {
+    <div class="mb-6 flex items-center gap-4">
+      <div class="flex-1 max-w-sm">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Selecionar loja</label>
+        <select
+          [value]="lojaId()"
+          (change)="onLojaChange($any($event.target).value)"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          <option value="">Selecione uma loja</option>
+          @for (loja of lojas(); track loja.id) {
+            <option [value]="loja.id">{{ loja.nome }}</option>
+          }
+        </select>
+      </div>
+      <div class="pt-6">
+        <button
+          (click)="abrirAddVinculo()"
+          [disabled]="botaoAddDesabilitado()"
+          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Adicionar V&#xed;nculo
+        </button>
+      </div>
+    </div>
+
+    <!-- Vinculos content -->
+    @if (lojaId()) {
+      @if (loadingVinculos()) {
+        <div class="flex items-center justify-center py-16 text-gray-400 text-sm">Carregando v&#xed;nculos&#8230;</div>
+      } @else if (vinculos().length === 0) {
+        <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+          <svg class="w-12 h-12 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <p class="text-sm">Nenhum usu&#xe1;rio vinculado a esta loja</p>
+        </div>
+      } @else {
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-100 bg-gray-50">
+                <th class="px-4 py-3 text-left font-medium text-gray-500">Usu&#xe1;rio</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500">E-mail</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-500">Papel</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              @for (vinculo of vinculos(); track vinculo.id) {
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3 font-medium text-gray-900">{{ vinculo.nomeUsuario }}</td>
+                  <td class="px-4 py-3 text-gray-600">{{ vinculo.emailUsuario }}</td>
+                  <td class="px-4 py-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                      {{ labelPapel(vinculo.papel) }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <button (click)="confirmarRemover(vinculo.usuarioId)"
+                      class="text-xs text-red-500 hover:text-red-700 transition-colors px-2 py-1 rounded hover:bg-red-50">
+                      Remover
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  }
+
+</div>
+
+<!-- Confirmation dialog: remove vinculo -->
+@if (confirmandoRemover()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+      <h3 class="text-base font-semibold text-gray-900 mb-2">Remover v&#xed;nculo</h3>
+      <p class="text-sm text-gray-600 mb-3">Deseja realmente remover este usu&#xe1;rio da loja?</p>
+      <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 mb-5">
+        &#x26a0;&#xfe0f; Os tokens ativos deste usu&#xe1;rio ser&#xe3;o invalidados em at&#xe9; 1 minuto.
+      </div>
+      <div class="flex gap-3">
+        <button (click)="cancelarRemover()"
+          class="flex-1 py-2 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          Cancelar
+        </button>
+        <button (click)="remover(confirmandoRemover()!)"
+          class="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
+          Remover
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Add vinculo modal -->
+@if (showAddForm()) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h2 class="text-base font-semibold text-gray-900">Adicionar V&#xed;nculo</h2>
+        <button (click)="fecharAddForm()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="addForm" (ngSubmit)="salvarVinculo()" class="px-6 py-5 space-y-4">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Usu&#xe1;rio</label>
+          <select formControlName="usuarioId"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <option value="">Selecione um usu&#xe1;rio</option>
+            @for (u of usuariosDisponiveis(); track u.id) {
+              <option [value]="u.id">{{ u.nome }} ({{ u.email }})</option>
+            }
+          </select>
+          @if (addForm.get('usuarioId')?.invalid && addForm.get('usuarioId')?.touched) {
+            <p class="text-xs text-red-600 mt-1">Selecione um usu&#xe1;rio</p>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Papel</label>
+          <select formControlName="papel"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            <option value="">Selecione um papel</option>
+            @for (p of papeis; track p.value) {
+              <option [value]="p.value">{{ p.label }}</option>
+            }
+          </select>
+          @if (addForm.get('papel')?.invalid && addForm.get('papel')?.touched) {
+            <p class="text-xs text-red-600 mt-1">Selecione um papel</p>
+          }
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" (click)="fecharAddForm()"
+            class="flex-1 py-2 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit" [disabled]="saving() || addForm.invalid"
+            class="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium rounded-lg transition-colors">
+            {{ saving() ? 'Salvando&#8230;' : 'Confirmar' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,49 @@
+<div class="flex flex-col">
+
+  <!-- Page header -->
+  <div class="px-6 pt-6 pb-0">
+    <h1 class="text-2xl font-bold text-gray-900">Usuários</h1>
+    <p class="text-sm text-gray-500 mt-0.5">Gerencie usuários, lojas e vínculos da empresa</p>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="border-b border-gray-200 px-6 mt-4">
+    <nav class="-mb-px flex gap-6" aria-label="Abas">
+      <button
+        (click)="currentTab.set('usuarios')"
+        [class]="currentTab() === 'usuarios'
+          ? 'border-b-2 border-blue-600 text-blue-600 font-semibold py-3 text-sm whitespace-nowrap'
+          : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 text-sm whitespace-nowrap'">
+        Usuários
+      </button>
+      <button
+        (click)="currentTab.set('lojas')"
+        [class]="currentTab() === 'lojas'
+          ? 'border-b-2 border-blue-600 text-blue-600 font-semibold py-3 text-sm whitespace-nowrap'
+          : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 text-sm whitespace-nowrap'">
+        Lojas
+      </button>
+      <button
+        (click)="currentTab.set('vinculos')"
+        [class]="currentTab() === 'vinculos'
+          ? 'border-b-2 border-blue-600 text-blue-600 font-semibold py-3 text-sm whitespace-nowrap'
+          : 'border-b-2 border-transparent text-gray-500 hover:text-gray-700 py-3 text-sm whitespace-nowrap'">
+        Vínculos
+      </button>
+    </nav>
+  </div>
+
+  <!-- Tab content -->
+  @switch (currentTab()) {
+    @case ('usuarios') {
+      <app-usuarios-tab />
+    }
+    @case ('lojas') {
+      <app-lojas-tab />
+    }
+    @case ('vinculos') {
+      <app-vinculos-tab />
+    }
+  }
+
+</div>
